@@ -51,9 +51,17 @@ public class RouteFinder implements IRouteFinder{
         ArrayList<String> destinations = getDestinationsFromInitial('B', getWebPageSource(URL));
 
         for (String s : destinations) {
+            // Format of items inside the hashmap: Destination, <Bus Number, URL>
+            // example:
+            //    {
+            //       'Bothell': {
+                    //    '105': 'https://www.communitytransit.org/busservice/schedules/route/105',
+                    //    <106: https://www.communitytransit.org/busservice/schedules/route/106>
+            //       },
+            // j    'Bellevue' : {},
+            //  }
             stationRouteMap.put(s, getBusInfo(getTextForDestination(s, getWebPageSource(URL))));
         }
-
 
         return stationRouteMap;
     }
@@ -89,7 +97,11 @@ public class RouteFinder implements IRouteFinder{
         }
     }
 
-    // given a destination get a list of their bus numbers
+    private String getTextForStationRoute () {
+        
+    }
+
+    // given a destination get a Map containing their bus numbers AND URLs
     private Map<String, String> getBusInfo(String textForDestination) {
         // Note that we have to return a list of strings because some bus "numbers" are not ints
         // Bus Number, URL
@@ -111,16 +123,25 @@ public class RouteFinder implements IRouteFinder{
     }
 
 
-    private Map<String, String> getDestinationBusesMap(Map<String, Map<String, String>> busRouteURLs) {
-        // should we process one location, or should we process all of them?
+    private Map<String, String> getTravelTimeMap(String busRouteURL) {
+        // This gets the bus route number, destination name, as well as all travel times for one URL.
+        Map<String, String> travelTimeMap = new HashMap<>();
 
+        Pattern stationPattern = Pattern.compile("");
+        Matcher stationMatcher = stationPattern.matcher(getWebPageSource(busRouteURL));
+
+
+        return travelTimeMap;
     }
 
     @Override
     public Map<String, List<Long>> getBusRouteTripsLengthsInMinutesToAndFromDestination(Map<String, String> destinationBusesMap) {
-        // First item should be the list and Bus Number, and the second item should be a list of times.
+        // For the returned map: first item should be the list and Bus Number, and the second item should be a list of times.
 
-        Map<String, List<Long>> busRoute
+        String text = getWebPageSource(destinationBusesMap.get()); // What should the key be? should we just iterate through the map?
+        HashMap<String, List<Long>> BusRouteTripsLengthsInMinutesToAndFromDestination = new HashMap<>();
+
+
 
         return null;
     }

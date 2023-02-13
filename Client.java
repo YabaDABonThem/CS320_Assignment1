@@ -11,6 +11,8 @@ public class Client {
         // char destinationInitial = console.nextLine().charAt(0);
 
         rf.getBusRoutesUrls('B');
+
+        // Take in the user's input as the key to the amd pass the value into the next function.
         // rf.getBusRouteTripsLengthsInMinutesToAndFromDestination();
     }
 }
