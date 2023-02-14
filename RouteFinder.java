@@ -73,7 +73,6 @@ public class RouteFinder implements IRouteFinder{
         Matcher initialMatcher = initialPattern.matcher(text);
 
         while (initialMatcher.find()) {
-            // System.out.println("group 1: " + initialMatcher.group(1));
             destinations.add(initialMatcher.group(1));
         }
 
@@ -88,7 +87,6 @@ public class RouteFinder implements IRouteFinder{
         Matcher stationMatcher = stationPattern.matcher(text);
 
         if (stationMatcher.find()) {
-            System.out.println(stationMatcher.group(2));
 
             return stationMatcher.group(1);
         } else {
@@ -103,7 +101,7 @@ public class RouteFinder implements IRouteFinder{
         Matcher stationMatcher = stationPattern.matcher(webPageSource);
 
         if (stationMatcher.find()) {
-            // System.out.println(stationMatcher.group(0));
+
 
             return stationMatcher.group(0);
         } else {
@@ -124,8 +122,6 @@ public class RouteFinder implements IRouteFinder{
         String schedulesURL = "https://www.communitytransit.org/busservice/schedules/";
 
         while (routeMatcher.find()) {
-//            System.out.println("Bus Number: " + routeMatcher.group(3));
-//            System.out.println("URL: " + schedulesURL + routeMatcher.group(1));
             busNumbers.put(routeMatcher.group(3), schedulesURL + routeMatcher.group(1)); // Note that this doesn't put in the first half of the URL yet
         }
 
@@ -165,10 +161,17 @@ public class RouteFinder implements IRouteFinder{
         Pattern stationGroupPattern = Pattern.compile(".*?<td class=\"text-center\">.*?(.*?)</tr>");
         Matcher stationGroupMatcher = stationGroupPattern.matcher(routeScheduleSource);
 
+        // CHECK FOR THOSE BUSES WITHOUT SCHEDULES
+        Matcher specialRouteDetector = stationGroupPattern.matcher(routeScheduleSource);
+        if (!specialRouteDetector.find()) {
+            ArrayList<Long> times = new ArrayList<>();
+            times.add(12L);
+            return times;
+        }
+
         while (stationGroupMatcher.find()) {
             Pattern travelTimePattern = Pattern.compile("(\\d+):(\\d+)");
             Matcher travelTimeMatcher = travelTimePattern.matcher(stationGroupMatcher.group(1));
-            // System.out.println(stationGroupMatcher.group(1));
             travelTimeMatcher.find();
             String startHour = travelTimeMatcher.group(1);
             String startMin = travelTimeMatcher.group(2);
@@ -180,11 +183,7 @@ public class RouteFinder implements IRouteFinder{
             }
             travelTimeList.add(getTimeDifference(Integer.parseInt(startHour), Integer.parseInt(startMin),
                     Integer.parseInt(lastHour), Integer.parseInt(lastMin)));
-//            System.out.println(getTimeDifference(Integer.parseInt(startHour), Integer.parseInt(startMin
-//                    ), Integer.parseInt(lastHour), Integer.parseInt(lastMin)));
 
-//            System.out.println(startTime);
-//            System.out.println(lastTime);
         }
 
 
@@ -205,7 +204,7 @@ public class RouteFinder implements IRouteFinder{
             // Now we have extracted the bus number and URL.
             // We need to get the value of busRoute and get the name, as well as the times.
 
-            Pattern routePattern = Pattern.compile("<h2>Weekday<small>To (.*)</small></h2>");
+            Pattern routePattern = Pattern.compile("<h2>Weekday<small>To (.*?)</small></h2>");
             Matcher routeMatcher = routePattern.matcher(getWebPageSource(busRoute.getValue().toString()));
 
             // idk why there's a while loop, there should only be one at most to match
@@ -219,16 +218,11 @@ public class RouteFinder implements IRouteFinder{
                 allTripLengths.put(routeName, times);
             }
 
-            return allTripLengths;
-        }
 
+        }
+        return allTripLengths;
         //String text = getWebPageSource(destinationBusesMap.get()); // What should the key be? should we just iterate through the map?
         //HashMap<String, List<Long>> BusRouteTripsLengthsInMinutesToAndFromDestination = new HashMap<>();
 
-
-
-
-
-        return null;
     }
 }
